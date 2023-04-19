@@ -60,7 +60,6 @@ public class TrajectoryPrediction : MonoBehaviour
                 {
                     direction = Vector2.Reflect(direction.normalized, hit.normal);
                     origin = hit.point *direction;
-                    Debug.DrawLine(origin, hit.point, Color.red);
 
                     hit = Physics2D.Raycast(origin, direction);
                     pos.Add(hit.point);
