@@ -1,4 +1,8 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class GameManager : EventManager
 {
@@ -31,8 +35,23 @@ public class GameManager : EventManager
         }
         else
         {
+            if (config)
+            {
+                config.initData();
+                CalculateBubbleSize();
+
+            }
             TriggerEvent("InitializeGame");
         }
+
+        
+    }
+
+    void CalculateBubbleSize()
+    {
+
+        var bubbleSize = (scene.Background.bounds.size.x + (scene.Background.bounds.size.x / config.bubblePerRow) / 2) / config.bubblePerRow;
+        SetBubbleSize(bubbleSize);
     }
 
     public SpriteRenderer GetBackground()
@@ -68,6 +87,7 @@ public class GameManager : EventManager
     public void SetShooterBubble(Bubble b)
     {
         scene.mainBubble = b;
+        TriggerEvent("ShooterBubbleReady");
     }
 
     public Bubble GetShooterBubble()
@@ -75,7 +95,36 @@ public class GameManager : EventManager
         return scene.mainBubble; 
     }
 
+    public void SetShootDirection(Vector3 direction)
+    {
+        scene.shootDirection = direction;
+    }
+    public Vector3 GetShootDirection()
+    {
+        return scene.shootDirection;
+    }
+
+    public void SetShootPath(Vector3[] path)
+    {
+        scene.shootPath = path;
+    }
+
+    public Vector3[] GetShootPath()
+    {
+        return scene.shootPath;
+    }
 
 
+
+    public void SetCurrentBubbles(List<Bubble> bubbles)
+    {
+        scene.currentBubbles = bubbles;
+    }
+
+
+    public List<Bubble> GetCurrentBubbles()
+    {
+        return  scene.currentBubbles;
+    }
 
 }

@@ -11,6 +11,13 @@ public class TrajectoryPrediction : MonoBehaviour
 
     public int reflectionCount = 2;
 
+    public SpriteRenderer PredictionBubble;
+
+
+    private void Start()
+    {
+        Line.enabled = false;
+    }
     public void RotateLine() {
 
         Vector3 direction = Input.mousePosition - Camera.main.WorldToScreenPoint(transform.position);
@@ -21,12 +28,17 @@ public class TrajectoryPrediction : MonoBehaviour
     public void EnablePrediction()
     {
         Line.enabled = true;
+        Line.positionCount = 0;
+
+        PredictionBubble.enabled = true;
+
     }
 
     public void DisablePrediction()
     {
         Line.enabled = false;
-        Line.positionCount = 0;
+        PredictionBubble.enabled = false;
+
     }
 
 
@@ -35,7 +47,7 @@ public class TrajectoryPrediction : MonoBehaviour
         Line.positionCount = points.Length;
         Line.SetPositions(points);
     }
-
+    //SUPER MESSY WAY, BUT I HAD NO CHOICE, DEADLINE IS GETTING CLOSER
     public void Update()
     {
         if (Input.GetMouseButton(0))
@@ -64,17 +76,61 @@ public class TrajectoryPrediction : MonoBehaviour
                     hit = Physics2D.Raycast(origin, direction);
                     pos.Add(hit.point);
 
+                    bubble = hit.collider.GetComponent<Bubble>();
+                    if (bubble == null)
+                    {
+                        DisablePrediction();
+
+                    }
+
                 }
+
+                if (PredictionBubble.enabled)
+                {
+                    //Things got a bit messy here 
+                    var bg = GameManager.Instance.GetBackground();
+
+
+                    var targetPos = new Vector3(hit.point.x , hit.collider.transform.position.y - GameManager.Instance.GetBubbleSize());
+
+                    PredictionBubble.transform.position = new Vector3(
+                        Mathf.Clamp(RoundToNearestGrid(targetPos.x, GameManager.Instance.GetBubbleSize()), bg.bounds.min.x+ GameManager.Instance.GetBubbleSize()/2, bg.bounds.max.x- GameManager.Instance.GetBubbleSize() / 2),
+                        Mathf.Clamp(targetPos.y, bg.bounds.min.y+ GameManager.Instance.GetBubbleSize() / 2, bg.bounds.max.y- GameManager.Instance.GetBubbleSize() / 2),
+                        targetPos.z);
+                    
+                    
+                    PredictionBubble.transform.localScale = new Vector3(GameManager.Instance.GetBubbleSize(), GameManager.Instance.GetBubbleSize(), GameManager.Instance.GetBubbleSize());
+
+                }
+
+                List<Vector3> shootPath = new(pos);
+                shootPath[shootPath.Count - 1] = PredictionBubble.transform.position;
+
                 SetPredictionTrajectory(pos.ToArray());
+                GameManager.Instance.SetShootPath(shootPath.ToArray());
             }
         }
         else
         {
+            if (Line.enabled)
+            {
+                GameManager.Instance.SetShootDirection(Line.transform.right);
+                GameManager.Instance.TriggerEvent("Shoot");
+            }
             DisablePrediction();
         }
     }
 
-
+    float RoundToNearestGrid(float pos,float unitSize)
+    {
+        float xDiff = pos % unitSize;
+        pos -= xDiff;
+        if (xDiff > (unitSize / 2))
+        {
+            pos += unitSize;
+        }
+        return pos;
+    }
 
 
 }

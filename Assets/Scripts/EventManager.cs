@@ -11,6 +11,7 @@ public class EventManager : MonoBehaviour
         var subscribers = OnEventOccuredRegistrations.Keys.Where(k => k.Item2 == eventName).ToList();
         foreach (var s in subscribers)
         {
+
             OnEventOccuredRegistrations[s].Invoke();
 
         }

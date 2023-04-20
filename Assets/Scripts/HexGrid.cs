@@ -1,5 +1,10 @@
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class HexGrid : MonoBehaviour
 {
@@ -24,21 +29,15 @@ public class HexGrid : MonoBehaviour
         bubblePerRow = GameManager.Instance.GetBubblePerRow();
         initialRowsNumber = GameManager.Instance.GetInitialRowNumber();
         bubblePrefab = GameManager.Instance.GetBubblePrefab();
+        bubbleSize = GameManager.Instance.GetBubbleSize();
 
-
-        CalculateBubbleSize();
         CalculateStartingPosition();
         CreateGrid();
 
         CreateGridEdges();
 
-    }
 
-    void CalculateBubbleSize()
-    {
 
-        bubbleSize = (Background.bounds.size.x + (Background.bounds.size.x / bubblePerRow) / 2) / bubblePerRow;
-        GameManager.Instance.SetBubbleSize(bubbleSize);
     }
 
     void CalculateStartingPosition()
@@ -61,7 +60,8 @@ public class HexGrid : MonoBehaviour
 
         return new Vector3(x, y, 0);
     }
-
+     List<Bubble> bubbles = new List<Bubble>();
+    
     void CreateGrid()
     {
         for (int y = 0; y < initialRowsNumber; y++)
@@ -73,8 +73,19 @@ public class HexGrid : MonoBehaviour
                 bubble.transform.position = CalculateBubblePosition(gridPos);
                 bubble.transform.localScale = new Vector3(bubbleSize, bubbleSize, bubbleSize);
                 bubble.transform.parent = this.transform;
+
+
+                var data = GameManager.Instance.config.SpawnableBubbleData.Next();
+
+                bubble.SetNumber(data.Number);
+                bubble.SetColor(data.Color);
+
+                bubble.name = "Bubble " + y + "|" + x; 
+                bubbles.Add(bubble);
+
             }
         }
+        GameManager.Instance.SetCurrentBubbles(bubbles);
     }
 
     void CreateGridEdges()
@@ -92,4 +103,7 @@ public class HexGrid : MonoBehaviour
         rightEdge.points = new Vector2[] { new Vector2(Background.bounds.max.x, Background.bounds.min.y), new Vector2(Background.bounds.max.x, Background.bounds.max.y) };
 
     }
+
+
+    
 }
