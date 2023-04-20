@@ -40,33 +40,37 @@ public class Gameplay : MonoBehaviour
 
         var bubbleToMerge = Neighboors.First(x => x.GetNumber() == current.GetNumber());
 
+        if (bubbleToMerge != null)
+        {
+            Vector3 pos = bubbleToMerge.transform.position;
 
-        Vector3 pos = bubbleToMerge.transform.position;
+            PopParticules.Stop();
+            PopParticules.transform.position = pos;
 
-        PopParticules.Stop();
-        PopParticules.transform.position = pos;
+            mainParticuleSystemModule.startColor = bubbleToMerge.GetColor();
+            bubbles.Remove(bubbleToMerge);
+            Destroy(bubbleToMerge.gameObject);
 
-        mainParticuleSystemModule.startColor = bubbleToMerge.GetColor();
-        bubbles.Remove(bubbleToMerge);
-        Destroy(bubbleToMerge.gameObject);
-
-        PopParticules.Play();
-
-
-        float k = Mathf.Log(current.GetNumber(), 2);
-
-        float newValue = Mathf.Pow(2, k + 1);
-
-        var preset = GameManager.Instance.config.BubbblePresets.Find(x => x.Number == newValue);
-
-        current.SetNumber(newValue);
-        current.SetColor(preset.Color);
-        
-        current.transform.position = pos;
-        bubbles.Remove(current);
+            PopParticules.Play();
 
 
-        GameManager.Instance.SetCurrentBubbles(bubbles);
+            float k = Mathf.Log(current.GetNumber(), 2);
+
+            float newValue = Mathf.Pow(2, k + 1);
+
+            var preset = GameManager.Instance.config.BubbblePresets.Find(x => x.Number == newValue);
+
+            current.SetNumber(newValue);
+            current.SetColor(preset.Color);
+
+            current.transform.position = pos;
+            bubbles.Remove(current);
+
+
+            GameManager.Instance.SetCurrentBubbles(bubbles);
+
+        }
+
 
     }
 
